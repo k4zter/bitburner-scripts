@@ -27,4 +27,12 @@ export async function main(ns) {
 			}
 		}
 	}
+	//uncomment this if u want it to run scan.js after u run masternuke.js script 
+	/* 
+	const tInput = Math.doc.getElementById("terminal-input");
+	tInput.value ='run scan.js';
+	const handler = Object.keys(tInput)[1];
+	tInput[handler].onChange({target:tInput});
+	tInput[handler].onKeyDown({keyCode:13, preventDefault:()=>null});
+	*/
 }
