@@ -1,0 +1,42 @@
+/** @param {NS} ns **/
+function moneyFormat(num, isMonetary) {
+	//define suffixes
+	let symbols = ["", "k", "m", "b", "t", "qa", "qi", "sx", "sp", "oc"];
+	let i = 0;
+	//determine correct suffix
+	for (; (Math.abs(num) >= 1000) && (i < symbols.length); i++) num /= 1000;
+	//return formatted number
+	return ((Math.sign(num) < 0) ? "-" : "") + (isMonetary ? "$" : "") + Math.abs(num).toFixed(2) + symbols[i];
+}
+
+let asd = {};
+export async function main(ns) {
+	if (!Math.asd) { Math.asd = asd; } //if port's empty, initialize it
+	asd = Math.asd; //if port's not empty, populate asd
+
+	ns.disableLog('sleep');
+	ns.disableLog('getServerSecurityLevel');
+	ns.disableLog('getServerMoneyAvailable');
+	ns.clearLog();
+
+	while (true) {
+		await ns.sleep(1);
+		ns.clearLog();
+		let tars = []; if (asd && Array.isArray(asd.bests)) { tars = asd.bests; }
+		ns.print('  #         SERVER NAME     $/ms  $/ms/GB   cost     hN    hAmt  cL(ms)   totProcs');
+		for (let s = 0; s < tars.length; s++) {
+			const tar = tars[s];
+			var outS = ns.nFormat(s, '0').padStart(3)
+				+ tar.tar.padStart(20)
+				+ moneyFormat(tar.value, true).padStart(10)
+				+ moneyFormat(tar.score, false).padStart(7)
+				+ ns.nFormat(tar.cost / asd.totRam, '0.0%').padStart(8)
+				+ moneyFormat(tar.hN, false).padStart(8)
+				+ ns.nFormat(tar.amt, '0.0%').padStart(7)
+				+ ns.nFormat(tar.cL, '0.0').padStart(8)
+			+ ns.nFormat(tar.totP, '0,000').padStart(8)
+				;
+			ns.print(outS);
+		}
+	}
+}
