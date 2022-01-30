@@ -25,10 +25,9 @@ function info(ns) {
         scripts = 'sendem.js', //change this args to 0 if u changed the servName to a string or change this to a string too if u want
         r = ns.args[0], //change to args to 1 if u only changed servName to a string or args to 0 if u changed both scripts and servName to a string.
         fileName = ns.getRunningScript().filename;
-    ns.tail(fileName, 'home', r);
-    ns.tail(fileName, 'home');
     return { scripts, servName, r, fileName };
 }
+
 /**
  * Formats big numbers into abbreviated versions
  * @param {number} num Number to format
@@ -90,7 +89,7 @@ function checkErrors(ns) {
         boughtServ = ns.getPurchasedServers(),
         servCost = ns.getPurchasedServerCost(Math.pow(2, 20)) * 25,
         playerMoney = ns.getPlayer().money;
-    if (typeof servName != 'string' || typeof scripts != 'string') {
+    if (typeof servName !== 'string' || typeof scripts !== 'string') {
         ns.tprint(`ERROR please run ${fileName} like such \neg. run ${fileName} [pserv-][scp.js][15] \nwould purchase servers naming them pserv-0 to pserv-24 with 2^15 = 32.77 TB of ram.\n(run ${fileName} [serverName] [scriptName (the one that copies over ur hack script and runs them on every purchased server)] [ram ((Optional) this number to the power of 2 will be the amount of ram u want the servers to have)].`);
         ns.exit();
     }
@@ -99,47 +98,45 @@ function checkErrors(ns) {
             --r
             servCost = ns.getPurchasedServerCost(Math.pow(2, r)) * 25;
         }
-        if (typeof boughtServ == 'string') {
+        if (Array.isArray(boughtServ)) {
             if (Math.pow(2, r) == ns.getServerMaxRam(boughtServ[0])) {
                 if (Math.pow(2, r) == Math.pow(2, 20)) {
-                    ns.print(`INFO You alread own the maximum amount of ram a server could have: ${ramFormat(Math.pow(2, 20))}.`);
+                    ns.tprint(`INFO You alread own the maximum amount of ram a server could have: ${ramFormat(Math.pow(2, 20))}.`);
+                    ns.exit();
+                } else {
+                    ns.tprint(`ERROR You already own servers with ${ramFormat(Math.pow(2, r))} and do not have enought money to buy 25 servers with ${ramFormat(Math.pow(2, r + 1))}`);
                     ns.exit();
                 }
-                ns.print(`ERROR You already own servers with ${ramFormat(Math.pow(2, r))} and do not have enought money to buy 25 servers with ${ramFormat(Math.pow(2, r + 1))}`);
+                ns.tprint(`ERROR You already own servers with ${ramFormat(Math.pow(2, r))}.`);
                 ns.exit();
+            } else if (Math.pow(2, r) < ns.getServerMaxRam(boughtServ[0])) {
+                let ramDiff = ns.getServerMaxRam(boughtServ[0]) - Math.pow(2, r);
+                ns.tprint(`ERROR The servers are trying to buy has ${ramFormat(Math.pow(2, r))} and your servers have ${ramFormat(ramDiff)} more than the servers you are trying to purchase.`);
+                ns.exit();
+            } else {
+                return r;
             }
         }
-        return r;
     }
-    if (typeof boughtServ == 'string') {
-        if (Math.pow(2, r) == ns.getServerMaxRam(boughtServ[0])) {
-            ns.print(`ERROR You already own servers with ${ramFormat(Math.pow(2, r))}.`);
-            ns.exit();
-        } else if (Math.pow(2, r) < ns.getServerMaxRam(boughtServ[0])) {
-            let ramDiff = ns.getServerMaxRam(boughtServ[0]) - Math.pow(2, r);
-            ns.print(`ERROR The servers are trying to buy has ${ramFormat(Math.pow(2, r))} and your servers have ${ramFormat(ramDiff)} more than the servers you are trying to purchase.`);
-            ns.exit();
-        }
-    }
-    return r;
 }
+
 export async function main(ns) {
     ns.disableLog('ALL');
-    let r = checkErrors(ns);
-    let stats = info(ns);
-    let servName = stats.servName;
-    let scripts = stats.scripts;
-    let servCost = ns.getPurchasedServerCost(Math.pow(2, r)) * 25;
-    let boughtServ = ns.getPurchasedServers();
+    let stats = info(ns),
+        r = checkErrors(ns),
+        servName = stats.servName,
+        scripts = stats.scripts,
+        servCost = ns.getPurchasedServerCost(Math.pow(2, r)) * 25,
+        boughtServ = ns.getPurchasedServers();
     let choice = await ns.prompt(`You are able to buy 25 servers all with ${ramFormat(Math.pow(2, r))} and with the names ${servName}n (n being the number of the server eg. ${servName}0) at the cost of ${moneyFormat(servCost, true)}.`)
     if (choice == true) {
         for (let i = 0; i < 25; ++i) {
             let serv = servName + i;
             let ram = Math.pow(2, r);
             let servOwned = boughtServ[i];
-            if (typeof servOwned == 'undefined') {
+            if (typeof servOwned === 'undefined') {
                 buyS(ns, serv, ram);
-            } else if (typeof servOwned == 'string') {
+            } else if (typeof servOwned === 'string') {
                 var boughtRam = ns.getServerMaxRam(servOwned);
                 if (boughtRam < ram) {
                     sellS(ns, servOwned);
@@ -147,9 +144,9 @@ export async function main(ns) {
                 }
             }
         }
-        let scriptChoice = await ns.prompt(`Would you like to run ${scripts} with 25 servers?`);
         ns.print(amongus);
         ns.tprint(amongus);
+        let scriptChoice = await ns.prompt(`Would you like to run ${scripts} with 25 servers?`);
         if (scriptChoice == true) {
             ns.exec(scripts, 'home');
         }
